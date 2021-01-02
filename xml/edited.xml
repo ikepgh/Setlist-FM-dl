@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+
+<xsl:strip-space elements="artist venue"/>
+
+<xsl:template match="/">
+<html>
+<body>
+  <h2>Edited Output - setlist.fm</h2>
+  <table border="1">
+    <tr bgcolor="#9acd32">
+      <th style="text-align:left">Date</th>
+      <th style="text-align:left">Artist</th>
+      <th style="text-align:left">Setlist</th>
+      <th style="text-align:left">First Song</th>
+      <th style="text-align:left">Venue</th>
+      <th style="text-align:left">City</th>
+      <th style="text-align:left">State</th>
+      <th style="text-align:left">Country</th>
+    </tr>
+    <xsl:for-each select="setlists/setlist">
+    <tr>
+      <td><xsl:value-of select="@eventDate"/></td>
+      <td><a href="{artist}"><xsl:value-of select="artist/@name"/></a></td>
+      <td><a href="{url}"><xsl:value-of select="url"/></a></td>
+      <td><xsl:value-of select="sets/set/song/@name"/></td>
+      <td><a href="{venue}"><xsl:value-of select="venue/@name"/></a></td>
+      <td><xsl:value-of select="venue/city/@name"/></td>
+      <td><xsl:value-of select="venue/city/@stateCode"/></td>
+      <td><xsl:value-of select="venue/city/country/@code"/></td>
+    </tr>
+    </xsl:for-each>
+  </table>
+</body>
+</html>
+</xsl:template>
+</xsl:stylesheet>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+<xsl:template match="/">
+<html>
+<body>
+  <h2>Artists Output - setlist.fm</h2>
+  <table border="1">
+    <tr bgcolor="#9acd32">
+      <th style="text-align:left">Artist</th>
+      <th style="text-align:left">Setlist</th>
+    </tr>
+    <xsl:for-each select="artists/artist">
+    <tr>
+      <td><xsl:value-of select="@name"/></td>
+      <td><a href="{url}"><xsl:value-of select="url"/> </a></td>  
+    </tr>
+    </xsl:for-each>
+  </table>
+</body>
+</html>
+</xsl:template>
+</xsl:stylesheet>
