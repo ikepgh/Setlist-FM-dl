@@ -1,8 +1,8 @@
-/* Setlist-FM-dl 0.7 by IKE (compiled with gcc 2.95.3/MorphOS)
+/* Setlist-FM-dl 0.7a by IKE (compiled with gcc9/MorphOS)
  *
  * Connects to Setlist.fm user and downloads various data
  *
- * ike@ezcyberspace.com   Date: 2/24/20
+ * ike@ezcyberspace.com   Date: 1/4/21
  *
  * - NList/parsecsv code based on ViewCSV. Thanks Watertonian!
  *
@@ -12,20 +12,22 @@
  * - Download entire user concert history in .csv format uses Rob Medico's
  *   frontend at https://backup-setlistfm.herokuapp.com  ...Thanks!
  *
- * gcc -o Setlist-FM-dl setlistfmdl.c -lcurl -lssl -lcrypto -ldl -lpthread -lxml2 -lxslt -lz -liconv -lm -s -Wall
+ * ppc-morphos-gcc-9  -o Setlist-FM-dl setlistfmdl.c -lcurl  -lssl -lcrypto -ldl -lpthread 
+ *                                 -lxml2 -lxslt -lz -liconv -lm -lnghttp2 -noixemul -s -Wall 
  */
 #include <stdio.h>
 #include <stdlib.h>                       
 #include <string.h>
-#include <proto/intuition.h>
-#include <proto/graphics.h>
-#include <proto/exec.h>
-#include <proto/muimaster.h>
+#include <proto/intuition.h> 
+#include <proto/graphics.h>  
+#include <proto/exec.h> 
+#include <proto/muimaster.h> 
 #include <clib/gadtools_protos.h>
 #include <MUI/BetterString_mcc.h>
 #include <MUI/NListview_mcc.h>
 #include <MUI/Hyperlink_mcc.h>
 #include "GG:includestd/curl/curl.h"
+#include <nghttp2ver.h> // added SDK 3.16
 #include <SDI/SDI_hook.h>
 #include <libxml/xmlmemory.h>
 #include <libxml/debugXML.h>
@@ -39,7 +41,7 @@
 #include <libxslt/transform.h>
 #include <libxslt/xsltutils.h>
 
-char *version = "$VER: Setlist-FM-dl-0.7";
+char *version = "$VER: Setlist-FM-dl-0.7a";
 
 struct GfxBase *GfxBase;
 struct IntuitionBase *IntuitionBase;
@@ -111,7 +113,7 @@ static struct NewMenu MenuData1[]=
 };
 
 char about_text[] =
-"\33cSetlist-FM-dl © 2020 IKE\n version 0.7 (2/24/20)\n Connects to Setlist.fm and downloads various data\n";
+"\33cSetlist-FM-dl © 2021 IKE\n version 0.7a (1/4/21)\n Connects to Setlist.fm and downloads various data\n";
 
 Object *STR_tag, *STR_langsetting, *STR_xapikeysetting, *STR_userid, *aboutwin, *STR_userid_attended,
 *STR_userid_attended_page, *STR_artists, *STR_artists_page, *STR_venues, *STR_venues_page, *STR_venues_html,
@@ -182,6 +184,16 @@ void get_PageNumber(void)
     IPTR slideValue = 0;
     get(STR_page_number, MUIA_Numeric_Value, &slideValue); 
     sprintf(str, "%ld", (long)slideValue);    
+    }
+///
+
+/// get_Settings
+void get_Settings (void)
+{
+    xapikey_var = "x-api-key:";
+    strcat(xapikey_var, xapikey);
+    langcode_var = "Accept-Language: ";
+    strcat(langcode_var, langcode);
     }
 ///
 
@@ -376,7 +388,7 @@ void parsecsv(char *csvfile) {
 			};
 		};
 		DoMethod(titleslider, MUIM_Set, MUIA_Slider_Max, myCSV.rows);
-		sprintf(csvtitle, "");
+		sprintf(csvtitle, "Output");  //""
 		myCSV.titlerow = 1;
 		for(count = 0; count < myCSV.columns; count++)sprintf(csvtitle, "%s%s", csvtitle, strings[string_titlebar]);
 		csvoffsets = (LONG *)realloc((LONG *)csvoffsets, (sizeof(int)*(1+(myCSV.rows*myCSV.columns))));
@@ -837,7 +849,7 @@ APTR application() {
 		return(ApplicationObject,
 		MUIA_Application_Title, "Setlist-FM-dl",
 		MUIA_Application_Version, version,
-		MUIA_Application_Copyright, "©2020 IKE",
+		MUIA_Application_Copyright, "©2021 IKE",
 		MUIA_Application_Author, "IKE",
 		MUIA_Application_Description, "Connects to Setlist.fm and downloads data\n",
 		MUIA_Application_Base, "Setlist-FM-dl",
@@ -1426,11 +1438,7 @@ int main(int argc, char *argv[]) {
 
 /// Main interface
 			case GRAB:
-                xapikey_var = "x-api-key:";
-                strcat(xapikey_var, xapikey);
-                langcode_var = "Accept-Language: ";
-                strcat(langcode_var, langcode);
-
+                get_Settings();
             	get(STR_tag, MUIA_String_Contents, &tag);
 
                 strcpy(host, "https://backup-setlistfm.herokuapp.com/export.csv?name=");
@@ -1480,10 +1488,7 @@ int main(int argc, char *argv[]) {
             case SETLISTS:
                 STR_page_number = STR_setlists_page;
                 get_PageNumber();
-                xapikey_var = "x-api-key:";
-                strcat(xapikey_var, xapikey);
-                langcode_var = "Accept-Language: ";
-                strcat(langcode_var, langcode);
+                get_Settings();
                 get(STR_setlists, MUIA_String_Contents, &setlists);
                 get(STR_setlists_date, MUIA_String_Contents, &setlists_date);
                 get(STR_setlists_tourname, MUIA_String_Contents, &setlists_tourname);
@@ -1530,10 +1535,7 @@ int main(int argc, char *argv[]) {
 
                     STR_page_number = STR_artists_page;
                     get_PageNumber();
-                    xapikey_var = "x-api-key:";
-                    strcat(xapikey_var, xapikey);
-                    langcode_var = "Accept-Language: ";
-                    strcat(langcode_var, langcode);
+                    get_Settings();
                     get(STR_artists, MUIA_String_Contents, &artists);
 
                     /* search/artist - uses artists.xml */
@@ -1564,10 +1566,7 @@ int main(int argc, char *argv[]) {
 
                     STR_page_number = STR_artists_page;
                     get_PageNumber();
-                    xapikey_var = "x-api-key:";
-                    strcat(xapikey_var, xapikey);
-                    langcode_var = "Accept-Language: ";
-                    strcat(langcode_var, langcode);
+                    get_Settings();
                     get(STR_artists, MUIA_String_Contents, &artists);
 
                     /* search/artist - uses artists.xml */
@@ -1604,10 +1603,7 @@ int main(int argc, char *argv[]) {
             case CITIES:
                 STR_page_number = STR_cities_page;
                 get_PageNumber();
-                xapikey_var = "x-api-key:";
-                strcat(xapikey_var, xapikey);
-                langcode_var = "Accept-Language: ";
-                strcat(langcode_var, langcode);
+                get_Settings();
                 get(STR_cities, MUIA_String_Contents, &cities);
 
                 /* search/cities - uses cities.xml */
@@ -1643,10 +1639,7 @@ int main(int argc, char *argv[]) {
             case VENUES:
                 STR_page_number = STR_venues_page;
                 get_PageNumber();
-                xapikey_var = "x-api-key:";
-                strcat(xapikey_var, xapikey);
-                langcode_var = "Accept-Language: ";
-                strcat(langcode_var, langcode);
+                get_Settings();
                 get(STR_venues, MUIA_String_Contents, &venues);
 
                 /* venues - search - uses venues.xml */
@@ -1682,10 +1675,7 @@ int main(int argc, char *argv[]) {
             case USERIDATTENDED:
                 STR_page_number = STR_userid_attended_page;
                 get_PageNumber();
-                xapikey_var = "x-api-key:";
-                strcat(xapikey_var, xapikey);
-                langcode_var = "Accept-Language: ";
-                strcat(langcode_var, langcode);
+                get_Settings();
                 get(STR_userid_attended, MUIA_String_Contents, &userid_attended);
 
                 /* user/attended - search uses attended.xml */
@@ -1721,10 +1711,7 @@ int main(int argc, char *argv[]) {
             case USEREDITED:
                 STR_page_number = STR_userid_edited_page;
                 get_PageNumber();
-                xapikey_var = "x-api-key:";
-                strcat(xapikey_var, xapikey);
-                langcode_var = "Accept-Language: ";
-                strcat(langcode_var, langcode);
+                get_Settings();
                 get(STR_userid_edited, MUIA_String_Contents, &userid_edited);
 
                 /* user/edited - search uses edited.xml */
@@ -1758,11 +1745,7 @@ int main(int argc, char *argv[]) {
 
 /// UserID search
             case USERID:
-                xapikey_var = "x-api-key:";
-                strcat(xapikey_var, xapikey);
-                langcode_var = "Accept-Language: ";
-                strcat(langcode_var, langcode);
-
+                get_Settings();
                 /* user id  - uses user.xml */
                 strcpy(host, "https://api.setlist.fm/rest/1.0/user/");
                 strcat(host, userid);
@@ -1796,11 +1779,7 @@ int main(int argc, char *argv[]) {
 
 /// Countries search
             case BUT_COUNTRIES:
-                xapikey_var = "x-api-key:";
-                strcat(xapikey_var, xapikey);
-                langcode_var = "Accept-Language: ";
-                strcat(langcode_var, langcode);
-
+                get_Settings();
                 /* search/countries - uses countries.xml */
                 strcpy(host, "https://api.setlist.fm/rest/1.0/search/countries");
 
