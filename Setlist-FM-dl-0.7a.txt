@@ -1,0 +1,159 @@
+Short:   Setlist-FM-dl
+Uploader:  ike@ezcyberspace.com
+Author:  IKE
+Type:  network/download
+Version: 0.7a
+Architecture:  MorphOS
+Requires:  BetterString.mcc, TextEditor.mcc
+Distribution: Any
+
+
+INTRODUCTION
+------------
+Setlist-FM-dl is a simple program that utilizes the setlist.fm API to download various data.
+It downloads .xml data by utilizing libcurl, libssl and libxml. It also does .xml-to-.html
+transformations via libxslt. This program is a simple example of an implementation on MorphOS
+of cURL/SSL as well as the useage of libxml and libxslt. This program has implemented all of
+the useful (and relevant) search functions/options that are exposed in the setlist.fm public API.
+
+Main Features:
+
+* Downloads user concert data from Setlist.fm
+* Saves output file in "ram:" in '.csv' format
+* Does various searches via the open setlist.fm API
+* Converts downloaded .xml data into .html via libxslt for future use and manipulation
+
+Thanks for your interest!
+
+Send email/feedback to:
+ike@ezcyberspace.com
+
+
+INSTALLATION
+------------
+Just place the 'Setlist-FM-dl' program and 'xml' folder (the xsl stylesheets) folder wherever
+you'd like on your harddrive...
+
+
+USAGE
+-----
+- Enter a User Name and press the Download button...to get that user's concert history
+...or search via the various Search items (requires setlist.fm user account and API key...)
+
+- Have a look at the 'hot help' bubbles to get an idea of the basic program usage...
+
+- To use the Search and '.xml to .html' conversions you must have a setlist.fm account:
+https://www.setlist.fm/signup (it's totally free to have an account...)
+
+- Once you have a user account you must apply for an API key (free) and enter it in the Prefs:
+https://www.setlist.fm/settings/api
+
+- You can state the reason for API key request as "to utilize the Setlist-FM-dl program"...
+
+- You can use '%20' where spaces are needed, an example search: The%20Who or... Pink%20Floyd
+
+- You can see how many pages were returned for your search in the main window at the top
+of the .xml code and adjust your page number search as necessary.  The API will only return
+20-30 items for each search request (depending on the request).  This is a limit of the API!
+
+- xsl stylesheets can be edited to manipulate the .html output of the various searches (be
+careful if you're not sure what your doing...as the output formatting is easy to break!)
+
+- Internationalization: This preference is used for localizing cities, countries, etc.  The
+default language is English (en), but you can provide any of the following languages: Spanish (es),
+French (fr), German (de), Portuguese (pt), Turkish (tr), Italian (it) or Polish (pl) codes.
+Just enter the two letter language code in the Prefs settings...
+
+- Any other questions?  Feel free to send me an email at: ike@ezcyberspace.com
+
+
+VERSION HISTORY
+--------------- 
+0.1 - first working iteration
+0.2 - source cleanup
+0.3 - initial release
+0.4 - modified source to download .xml
+0.4.1 - worked with .xml and xsltproc to build .html output
+0.4.2 - built libxslt 1.1.9 against libxml2 2.6.22 and compiled working example
+that does equivalent of xsltproc...yeah!
+0.4.3 - saves file
+0.4.4 - implemented search items & settings window; saves language pref (buggy)
+0.4.5 - implemented country and userid, massive source cleanup...
+0.4.6 - working .xml-to-.html conversion for userid & countries
+0.4.7 - working dialogs for userid & countries; hardcoded remainder of search items
+0.4.8 - working userid attended & artists search...
+0.4.9 - working cities, setlists & venues search; code cleanup...
+0.5 - saves x-api-key and language prefs, added user/edited search; massive code
+cleanup, added tabbed 'Search' window and second public release...
+0.5.1 - added 'Page Numbers' slider objects
+0.5.2 - code cleanup and recompile
+0.5.3 - working 'sortName' checkbox for Artists
+0.5.4 - working auto .xml-to-.hml checkbox
+0.5.5 - modified setlists.xml xslt stylesheet to display setlist songs (yay!)
+0.5.6 - interface fixes; .xml-to.html checkbox now ghosts Yes button
+0.5.7 - began implementation of tourName
+0.5.8 - finished auto .xml-to-.html checkboxes for all search categories
+0.5.9 - added Tour name to html output for setlist search; code cleanup and recompile
+0.6 - third public release
+0.7 - built libxslt 1.1.34 against libxml2 2.9.10; upgraded SDK removed ixemul dependency
+0.7a - noixemul compiling version - but it is very buggy and crashes!
+
+RECOMPILING
+-----------
+Stable build with MorphOS SDK 3.12 and gcc 2.95.3
+
+Major dependencies: libcurl, libssl, libxml2, libxslt
+
+Compile: gcc -o Setlist-FM-dl setlistfmdl.c -lcurl -lssl -lcrypto -ldl -lpthread
+-lxml2 -lxslt -lz -liconv -lm -s -Wall
+******************
+Current build with MorphOS SDK 3.16 and gcc 9 (noixemul)
+
+Compile: ppc-morphos-gcc-9  -o Setlist-FM-dl setlistfmdl.c -lcurl  -lssl -lcrypto -ldl -lpthread
+-lxml2 -lxslt -lz -lm -lnghttp2 -noixemul -s -Wall
+
+
+TO DO
+-----
+- error checking...program does not do any error checking, but when started from the
+command line you can see what is happening with your cURL requests and, however,
+it also gives feedback of the server response in the main window...
+
+- Other ideas to implement?  I'm listening...
+
+
+LICENSE
+-------
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+ABOUT
+-----
+- NList/parsecsv code based on ViewCSV. Thanks Watertonian!
+
+- .xml-to-.html code based on libxslt_tutorial.c and xsltproc.c
+  by John Fleck and Daniel Veillard respectively ...Thanks!
+
+- download entire user concert history in .csv format uses Rob Medico's
+  frontend at https://backup-setlistfm.herokuapp.com ...Thanks!
+
+Setlist-FM-dl is ©2021 IKE <ike@ezcyberspace.com>
+
+Look at some of my other projects and ports @
+http://www.ezcyberspace.com/programming.shtml
